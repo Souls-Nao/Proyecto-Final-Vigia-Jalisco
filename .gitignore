@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secretos (el repositorio es público: nunca subir claves)
+.env
+
+# Datos crudos y descargas grandes (se regeneran con los scripts 01 a 06)
+datos/crudos/
+datos/cache/
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+~$*.docx
