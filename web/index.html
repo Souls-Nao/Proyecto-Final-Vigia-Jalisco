@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<!--
+  web/index.html · Página "Mapa de incendios" (versión 1)
+  Qué hace:  muestra el menú del sitio y un mapa de Jalisco con la región piloto marcada.
+             Todavía NO pinta incendios: eso llega cuando existan los datos (web/datos/*.json).
+  Qué usa:   css/estilos.css y la librería Leaflet 1.9.4 (se baja de internet, no se instala).
+  Cómo se prueba: abrir este archivo en el navegador (doble clic). Debe verse el mapa.
+-->
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <!-- Para que en el celular la página use el ancho de la pantalla -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa de incendios · Vigía Jalisco</title>
+
+  <!-- Estilos de Leaflet (la librería del mapa) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <!-- Estilos propios del sitio -->
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <!-- Encabezado con el nombre del sitio y el menú (igual en todas las páginas) -->
+  <header class="encabezado">
+    <a class="marca" href="index.html">
+      <span class="marca-nombre">Vigía Jalisco</span>
+      <span class="marca-lema">Clasificación de incendios y plan de ataque</span>
+    </a>
+    <nav class="menu" aria-label="Páginas del sitio">
+      <a class="menu-actual" href="index.html">Mapa de incendios</a>
+      <!-- Estas páginas todavía no existen; se activan conforme se vayan subiendo -->
+      <span class="menu-pendiente" title="Página en construcción">Plan de ataque</span>
+      <span class="menu-pendiente" title="Página en construcción">Probar clasificación</span>
+      <span class="menu-pendiente" title="Página en construcción">Resultados</span>
+      <span class="menu-pendiente" title="Página en construcción">Acerca de</span>
+    </nav>
+  </header>
+
+  <main class="contenido">
+
+    <h1>Mapa de incendios</h1>
+
+    <!-- Recuadro de ayuda: cada página del sitio tiene uno -->
+    <section class="ayuda">
+      <h2>Cómo usar esta página</h2>
+      <p>
+        Mueve el mapa arrastrándolo y acércate con la rueda del ratón o con los botones + y −.
+        El rectángulo punteado marca la <strong>región piloto</strong> (Bosque La Primavera y
+        Área Metropolitana de Guadalajara), donde la herramienta propondrá el plan de ataque.
+      </p>
+      <p class="aviso-construccion">
+        Sitio en construcción: todavía no se muestran incendios. Aquí aparecerán los incendios
+        de 2024 y 2025 clasificados por nivel de severidad.
+      </p>
+    </section>
+
+    <!-- Aquí Leaflet dibuja el mapa -->
+    <div id="mapa" class="mapa" aria-label="Mapa de Jalisco"></div>
+
+    <!-- Leyenda con los colores que tendrá cada nivel -->
+    <section class="leyenda" aria-label="Colores por nivel">
+      <span class="leyenda-titulo">Niveles:</span>
+      <span class="leyenda-item"><span class="punto nivel-bajo"></span>Bajo</span>
+      <span class="leyenda-item"><span class="punto nivel-medio"></span>Medio</span>
+      <span class="leyenda-item"><span class="punto nivel-alto"></span>Alto</span>
+      <span class="leyenda-item"><span class="punto nivel-critico"></span>Crítico</span>
+      <span class="leyenda-item"><span class="punto nivel-falsa"></span>Probable falsa alarma</span>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    Proyecto académico del equipo Brigada Binaria. <strong>No sustituye a los sistemas oficiales</strong>
+    de CONAFOR, SEMADET ni Protección Civil y no emite alertas. Ante un incendio, llama al 911.
+  </footer>
+
+  <!-- Librería del mapa -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Código de esta página. Es corto; cuando crezca se pasará a js/mapa.js -->
+  <script>
+    // Esquinas de las dos regiones: [latitud, longitud] del suroeste y del noreste.
+    // Son los mismos números que están en scripts/config.py.
+    var cajaJalisco = [[18.87, -105.75], [22.80, -101.45]];
+    var cajaPiloto = [[20.40, -103.90], [20.95, -103.15]];
+
+    // Si Leaflet no se pudo bajar (sin internet), avisamos en vez de dejar el hueco en blanco.
+    if (typeof L === "undefined") {
+      document.getElementById("mapa").textContent =
+        "No se pudo cargar el mapa. Revisa tu conexión a internet y vuelve a abrir la página.";
+    } else {
+      // 1. Crear el mapa y encuadrarlo para que se vea todo Jalisco.
+      var mapa = L.map("mapa");
+      mapa.fitBounds(cajaJalisco);
+
+      // 2. Poner el mapa base de OpenStreetMap (calles, ciudades, relieve).
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 18,
+        attribution: "&copy; colaboradores de OpenStreetMap"
+      }).addTo(mapa);
+
+      // 3. Dibujar el rectángulo de la región piloto con un letrero.
+      var regionPiloto = L.rectangle(cajaPiloto, {
+        color: "#1d5c4b", weight: 2, dashArray: "6 6", fillOpacity: 0.05
+      }).addTo(mapa);
+      regionPiloto.bindTooltip("Región piloto: La Primavera y AMG");
+    }
+  </script>
+</body>
+</html>

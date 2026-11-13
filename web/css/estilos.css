@@ -1,0 +1,213 @@
+/*
+  estilos.css · Estilos compartidos por todas las páginas de Vigía Jalisco (versión 1)
+  Qué hace: define colores, tipografía, el encabezado con el menú, el recuadro de ayuda,
+            el mapa, la leyenda y el pie de página.
+  Lo usan:  todas las páginas de web/ con <link rel="stylesheet" href="css/estilos.css">
+  Cómo se prueba: abrir web/index.html en computadora y en celular (o achicar la ventana).
+*/
+
+/* ---------- Colores del sitio (se definen una vez y se reutilizan) ---------- */
+:root {
+  --verde-oscuro: #1d5c4b;     /* encabezado y títulos */
+  --fondo: #f6f5f1;            /* fondo de la página */
+  --tarjeta: #ffffff;          /* fondo de los recuadros */
+  --texto: #22302b;
+  --texto-suave: #5d6b66;
+  --borde: #d9ddd6;
+
+  /* Un color por nivel de severidad: de verde (bajo) a rojo oscuro (crítico).
+     El gris es para las probables falsas alarmas. */
+  --nivel-bajo: #4caf50;
+  --nivel-medio: #f2c200;
+  --nivel-alto: #f57c00;
+  --nivel-critico: #c62828;
+  --nivel-falsa: #9e9e9e;
+}
+
+/* ---------- Base ---------- */
+* {
+  box-sizing: border-box;      /* el ancho de cada caja incluye su relleno y su borde */
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--texto);
+  background: var(--fondo);
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 1.6rem;
+  color: var(--verde-oscuro);
+}
+
+h2 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+/* ---------- Encabezado y menú ---------- */
+.encabezado {
+  display: flex;
+  flex-wrap: wrap;             /* en pantallas angostas el menú baja a otra línea */
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding: 12px 20px;
+  background: var(--verde-oscuro);
+  color: #ffffff;
+}
+
+.marca {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.marca-nombre {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.marca-lema {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.menu a,
+.menu span {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.menu a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.menu a:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Página en la que estamos */
+.menu .menu-actual {
+  background: #ffffff;
+  color: var(--verde-oscuro);
+  font-weight: 600;
+}
+
+/* Páginas que todavía no existen: se ven apagadas y no se pueden abrir */
+.menu-pendiente {
+  color: rgba(255, 255, 255, 0.55);
+  cursor: not-allowed;
+}
+
+/* ---------- Contenido ---------- */
+.contenido {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+/* Recuadro "Cómo usar esta página" */
+.ayuda {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-left: 5px solid var(--verde-oscuro);
+  border-radius: 6px;
+}
+
+.ayuda p {
+  margin: 0 0 6px;
+}
+
+.aviso-construccion {
+  color: var(--texto-suave);
+  font-style: italic;
+}
+
+/* ---------- Mapa ---------- */
+.mapa {
+  height: 62vh;                /* 62 % del alto de la pantalla */
+  min-height: 340px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  background: #e8ebe6;         /* se ve mientras cargan las imágenes del mapa */
+}
+
+/* ---------- Leyenda de niveles ---------- */
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 18px;
+  margin-top: 12px;
+  font-size: 0.95rem;
+}
+
+.leyenda-titulo {
+  font-weight: 600;
+}
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Circulito de color */
+.punto {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.nivel-bajo { background: var(--nivel-bajo); }
+.nivel-medio { background: var(--nivel-medio); }
+.nivel-alto { background: var(--nivel-alto); }
+.nivel-critico { background: var(--nivel-critico); }
+.nivel-falsa { background: var(--nivel-falsa); }
+
+/* ---------- Pie de página ---------- */
+.pie {
+  padding: 16px 20px 28px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+/* ---------- Celular (pantallas de menos de 600 px de ancho) ---------- */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  .encabezado {
+    padding: 10px 12px;
+  }
+
+  .menu a,
+  .menu span {
+    padding: 5px 8px;
+    font-size: 0.85rem;
+  }
+
+  .mapa {
+    height: 55vh;
+  }
+}
