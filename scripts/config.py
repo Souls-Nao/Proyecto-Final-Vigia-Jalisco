@@ -51,6 +51,16 @@ PILOTO_SUR = 20.40
 PILOTO_ESTE = -103.15
 PILOTO_NORTE = 20.95
 
+# Polígono oficial de Jalisco, para el recorte fino de los puntos de calor.
+# Fuente: servicio del Marco Geoestadístico del INEGI (versión de diciembre de 2025).
+# El 14 al final es la clave de Jalisco en el catálogo de entidades del INEGI.
+JALISCO_POLIGONO_URL = "https://gaia.inegi.org.mx/wscatgeo/v2/geo/mgee/14"
+
+# Jalisco usa todo el año la hora del centro de México, que va 6 horas atrás de la hora
+# universal (UTC) en la que FIRMS da sus horas. Fuente: Ley de los Husos Horarios de 2022,
+# que eliminó el horario de verano.
+HORAS_UTC_A_LOCAL = -6
+
 # ----------------------------------------------------------------------------
 # 4. Carpetas y archivos del proyecto
 # ----------------------------------------------------------------------------
@@ -67,8 +77,10 @@ CARPETA_REPORTES = CARPETA_PROYECTO / "reportes"
 CARPETAS_DE_DATOS = [CARPETA_CRUDOS, CARPETA_REFERENCIA, CARPETA_PROCESADOS, CARPETA_WEB_DATOS]
 
 # Archivos que producen los primeros scripts (el número dice qué script lo escribe).
+ARCHIVO_JALISCO = CARPETA_REFERENCIA / "jalisco.geojson"                      # script 01 (polígono del estado)
 ARCHIVO_PUNTOS_CALOR = CARPETA_PROCESADOS / "puntos_calor_jalisco.csv"        # script 01
-ARCHIVO_CONAFOR = CARPETA_PROCESADOS / "incendios_conafor_jalisco.csv"        # script 02
+ARCHIVO_CONAFOR = CARPETA_PROCESADOS / "incendios_conafor_jalisco.csv"        # script 02 (tabla)
+ARCHIVO_CONAFOR_POLIGONOS = CARPETA_PROCESADOS / "incendios_conafor_jalisco.geojson"  # script 02 (polígonos)
 ARCHIVO_CANDIDATOS = CARPETA_PROCESADOS / "incendios_candidatos.csv"          # script 03
 ARCHIVO_VARIABLES = CARPETA_PROCESADOS / "incendios_variables.csv"            # script 04
 
@@ -82,6 +94,12 @@ FIRMS_URL = "https://firms.modaps.eosdis.nasa.gov/data/country/{sensor}/{anio}/{
 # viirs-snpp = sensor VIIRS del satélite Suomi NPP (píxel de 375 m).
 # modis      = sensor MODIS de los satélites Terra y Aqua (píxel de 1 km).
 FIRMS_SENSORES = ["viirs-snpp", "modis"]
+
+# FIRMS da la confianza de MODIS como número de 0 a 100 y la de VIIRS como letra:
+# l (baja), n (nominal) y h (alta). Para tener una sola escala de 0 a 1, cada letra se cambia
+# por el punto medio del rango que MODIS usa para esa misma clase: baja 0 a 30, nominal 30 a 80
+# y alta 80 a 100 (guía de usuario de fuego activo de MODIS). Valor inicial; se revisa en OP1.
+CONFIANZA_VIIRS = {"l": 0.15, "n": 0.55, "h": 0.90}
 
 # ----------------------------------------------------------------------------
 # 6. Fuente F2 · Registros de incendios de CONAFOR
@@ -97,6 +115,10 @@ CONAFOR_CAPAS = {
 }
 # Así viene escrito el estado en la columna ESTADO de esas capas.
 CONAFOR_ESTADO = "Jalisco"
+# Al guardar los polígonos de CONAFOR se quitan los vértices que cambian el contorno menos de
+# esta distancia. Justificación: un píxel de VIIRS mide 375 m, así que 20 m no afecta el cruce
+# con los puntos de calor y el archivo baja de 27 MB a pocos MB.
+SIMPLIFICAR_POLIGONOS_M = 20
 
 
 def crear_carpetas():
@@ -123,6 +145,8 @@ def mostrar_configuracion():
     for anio in ANIOS:
         for sensor in FIRMS_SENSORES:
             print("  ", FIRMS_URL.format(sensor=sensor, anio=anio))
+    print("Polígono de Jalisco (INEGI):")
+    print("  ", JALISCO_POLIGONO_URL)
     print("Capas de CONAFOR:")
     for anio in ANIOS:
         print("  ", anio, "->", CONAFOR_CAPAS[anio])
