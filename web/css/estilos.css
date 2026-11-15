@@ -1,7 +1,7 @@
 /*
-  estilos.css · Estilos compartidos por todas las páginas de Vigía Jalisco (versión 1)
+  estilos.css · Estilos compartidos por todas las páginas de Vigía Jalisco (versión 2)
   Qué hace: define colores, tipografía, el encabezado con el menú, el recuadro de ayuda,
-            el mapa, la leyenda y el pie de página.
+            las tarjetas de texto, las tablas, los avisos, el mapa, la leyenda y el pie de página.
   Lo usan:  todas las páginas de web/ con <link rel="stylesheet" href="css/estilos.css">
   Cómo se prueba: abrir web/index.html en computadora y en celular (o achicar la ventana).
 */
@@ -137,6 +137,85 @@ h2 {
 .aviso-construccion {
   color: var(--texto-suave);
   font-style: italic;
+}
+
+/* ---------- Páginas de texto (por ejemplo "Acerca de") ---------- */
+
+/* Columna más angosta para que el texto se lea cómodo */
+.contenido-texto {
+  max-width: 820px;
+}
+
+a {
+  color: var(--verde-oscuro);
+}
+
+/* Recuadro blanco para cada sección de texto */
+.tarjeta {
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+}
+
+.tarjeta h2 {
+  font-size: 1.15rem;
+  color: var(--verde-oscuro);
+}
+
+.tarjeta p,
+.tarjeta ul,
+.tarjeta ol {
+  margin: 0 0 10px;
+}
+
+.tarjeta li {
+  margin-bottom: 6px;
+}
+
+/* El aviso de que no sustituye a los sistemas oficiales resalta con borde naranja */
+.aviso-oficial {
+  border-left: 5px solid var(--nivel-alto);
+}
+
+.nota {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+/* Mensaje que se muestra cuando algo falla (por ejemplo, si no cargan los datos) */
+.aviso {
+  padding: 10px 14px;
+  background: #fff4e0;
+  border: 1px solid var(--nivel-alto);
+  border-radius: 6px;
+}
+
+/* ---------- Tablas ---------- */
+
+/* En el celular la tabla se desliza de lado en vez de salirse de la pantalla */
+.tabla-deslizable {
+  overflow-x: auto;
+  margin-bottom: 10px;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.tabla th,
+.tabla td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--borde);
+  text-align: left;
+  vertical-align: top;
+}
+
+.tabla th {
+  background: var(--fondo);
 }
 
 /* ---------- Mapa ---------- */

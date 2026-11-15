@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!--
+  web/acerca.html · Página "Acerca de" (versión 1)
+  Qué hace:  explica el problema, qué hace la herramienta, de dónde salen los datos,
+             quién la hizo y cómo se usó la inteligencia artificial.
+  Qué usa:   css/estilos.css y js/comun.js (para dibujar el menú).
+  Cómo se prueba: abrir este archivo en el navegador; debe verse el menú y el texto.
+-->
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acerca de · Vigía Jalisco</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <header class="encabezado">
+    <a class="marca" href="index.html">
+      <span class="marca-nombre">Vigía Jalisco</span>
+      <span class="marca-lema">Clasificación de incendios y plan de ataque</span>
+    </a>
+    <!-- El menú lo llena js/comun.js -->
+    <nav class="menu" id="menu" aria-label="Páginas del sitio"></nav>
+  </header>
+
+  <main class="contenido contenido-texto">
+
+    <h1>Acerca de Vigía Jalisco</h1>
+
+    <section class="ayuda">
+      <h2>Cómo usar esta página</h2>
+      <p>
+        Aquí se explica para qué sirve la herramienta, de dónde vienen sus datos y quién la hizo.
+        Para ver los incendios, entra a <a href="index.html">Mapa de incendios</a>.
+      </p>
+    </section>
+
+    <section class="tarjeta aviso-oficial">
+      <h2>Aviso importante</h2>
+      <p>
+        Vigía Jalisco es un <strong>proyecto académico</strong>. Solo <strong>recomienda</strong>:
+        no envía alertas, no contacta a servicios de emergencia y
+        <strong>no sustituye a los sistemas oficiales</strong> de CONAFOR, SEMADET ni Protección Civil.
+        Ante un incendio, llama al <strong>911</strong>.
+      </p>
+    </section>
+
+    <section class="tarjeta">
+      <h2>El problema</h2>
+      <p>
+        Cada año, de enero a junio, Jalisco vive su temporada de incendios forestales. La detección
+        ya existe: los satélites entregan <strong>puntos de calor</strong> varias veces al día.
+        Pero esos puntos llegan sueltos: un mismo incendio produce muchos, y también aparecen
+        falsas alarmas, como quemas agrícolas o fuentes industriales.
+      </p>
+      <p>
+        Cuando hay varios incendios al mismo tiempo, quienes coordinan a las brigadas tienen que decidir
+        rápido cuáles alertas son incendios reales, qué tan graves son, cuántos recursos necesita
+        cada uno y en qué orden atenderlos. Hoy esa decisión depende sobre todo de la experiencia
+        del personal, y se vuelve lenta cuando los incendios se multiplican.
+      </p>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Qué hace la herramienta</h2>
+      <ol>
+        <li>
+          <strong>Clasifica los incendios de todo Jalisco</strong> en dos pasos: primero decide si
+          es un incendio real o una probable falsa alarma, y después le asigna un nivel de
+          severidad: bajo, medio, alto o crítico.
+        </li>
+        <li>
+          <strong>Propone un plan de ataque</strong> en la región piloto (Bosque La Primavera y Área
+          Metropolitana de Guadalajara): recursos según el nivel, orden de atención, qué brigadas
+          enviar a cada incendio y por qué ruta.
+        </li>
+      </ol>
+      <p>
+        Queda fuera del proyecto: detectar incendios, enviar alertas, simular cómo avanza el fuego,
+        asignar aeronaves y calcular rutas fuera de la región piloto.
+      </p>
+    </section>
+
+    <section class="tarjeta">
+      <h2>De dónde salen los datos</h2>
+      <p>Todas las fuentes son públicas.</p>
+      <div class="tabla-deslizable">
+        <table class="tabla">
+          <thead>
+            <tr><th>Fuente</th><th>Qué aporta</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="https://firms.modaps.eosdis.nasa.gov/">NASA FIRMS</a> (sensores VIIRS y MODIS)</td>
+              <td>Puntos de calor de 2024 y 2025: ubicación, fecha, hora e intensidad</td>
+              <td>Descargada</td>
+            </tr>
+            <tr>
+              <td><a href="https://idefor.cnf.gob.mx/">CONAFOR</a>, Concentrado Nacional de Polígonos de Incendios Forestales</td>
+              <td>Incendios registrados en Jalisco, con fecha y superficie afectada. Sirven para comprobar la clasificación</td>
+              <td>Descargada</td>
+            </tr>
+            <tr>
+              <td><a href="https://www.inegi.org.mx/">INEGI</a>, Marco Geoestadístico</td>
+              <td>Límite del estado de Jalisco y localidades</td>
+              <td>Límite descargado; localidades por integrar</td>
+            </tr>
+            <tr>
+              <td>Uso de suelo y vegetación, áreas naturales protegidas y clima histórico</td>
+              <td>Tipo de vegetación, cercanía a áreas protegidas, viento, humedad y temperatura</td>
+              <td>Por integrar</td>
+            </tr>
+            <tr>
+              <td><a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a></td>
+              <td>Mapa base y red de caminos de la región piloto</td>
+              <td>Mapa base en uso; caminos por integrar</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="nota">
+        Reconocimiento: se usan datos de LANCE FIRMS, operado por NASA EOSDIS, y datos de
+        © colaboradores de OpenStreetMap.
+      </p>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Quién la hizo</h2>
+      <p>
+        Equipo <strong>Brigada Binaria</strong>, para el Seminario de Integración de Desarrollo:
+      </p>
+      <ul>
+        <li>Castañeda Hernández Oswaldo Daniel</li>
+        <li>Gutierrez Nava Johan Daniel</li>
+        <li>Ruvalcaba Velazquez Omar Alejandro</li>
+        <li>Soria Hernández Cuauhtémoc</li>
+      </ul>
+    </section>
+
+    <section class="tarjeta">
+      <h2>Cómo se usó la inteligencia artificial</h2>
+      <p>
+        El código de este proyecto se escribió con apoyo de una inteligencia artificial
+        (Claude, de Anthropic). El equipo define qué se construye, revisa y prueba cada archivo,
+        lo sube al repositorio y debe poder explicarlo.
+      </p>
+      <p>
+        La clasificación y el plan de ataque <strong>no</strong> los decide una inteligencia
+        artificial generativa: se calculan con reglas escritas y con modelos que se pueden medir
+        y repetir, y sus resultados se comparan con los registros de CONAFOR.
+      </p>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    Proyecto académico del equipo Brigada Binaria. <strong>No sustituye a los sistemas oficiales</strong>
+    de CONAFOR, SEMADET ni Protección Civil y no emite alertas. Ante un incendio, llama al 911.
+  </footer>
+
+  <script src="js/comun.js"></script>
+  <script>
+    // Lo único que hace esta página con código es dibujar el menú.
+    dibujarMenu();
+  </script>
+</body>
+</html>
