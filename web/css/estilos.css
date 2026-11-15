@@ -1,5 +1,5 @@
 /*
-  estilos.css · Estilos compartidos por todas las páginas de Vigía Jalisco (versión 2)
+  estilos.css · Estilos compartidos por todas las páginas de Vigía Jalisco (versión 3)
   Qué hace: define colores, tipografía, el encabezado con el menú, el recuadro de ayuda,
             las tarjetas de texto, las tablas, los avisos, el mapa, la leyenda y el pie de página.
   Lo usan:  todas las páginas de web/ con <link rel="stylesheet" href="css/estilos.css">
@@ -225,6 +225,22 @@ a {
   border: 1px solid var(--borde);
   border-radius: 6px;
   background: #e8ebe6;         /* se ve mientras cargan las imágenes del mapa */
+}
+
+/* Renglón que dice cuántos incendios se muestran (o avisa si algo falló) */
+#estado-datos {
+  margin: 0 0 12px;
+}
+
+/* Ficha que aparece al hacer clic en un incendio */
+.ficha {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.ficha ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
 }
 
 /* ---------- Leyenda de niveles ---------- */

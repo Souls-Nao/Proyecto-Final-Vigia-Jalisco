@@ -1,0 +1,96 @@
+{
+  "ejemplo": true,
+  "nota": "DATOS DE EJEMPLO. Estos incendios son inventados: sirven solo para probar que el mapa pinta bien. Se reemplazan por los datos reales (incendios_2024.json e incendios_2025.json) cuando esté lista la clasificación.",
+  "anio": 2025,
+  "generado": "2026-11-14",
+  "incendios": [
+    {
+      "id": "EJEMPLO-01",
+      "inicio": "2025-04-15T19:42",
+      "fin": "2025-04-16T08:10",
+      "lat": 20.6700, "lon": -103.5500,
+      "n_puntos": 18, "n_pasadas": 3, "frp_max": 64.2,
+      "es_real": true, "prob_real": 0.91,
+      "nivel": "alto",
+      "razones": ["Detectado en 3 pasadas de satélite", "A 1.4 km de una localidad de 4,200 habitantes"],
+      "en_piloto": true
+    },
+    {
+      "id": "EJEMPLO-02",
+      "inicio": "2025-04-15T14:05",
+      "fin": "2025-04-17T02:30",
+      "lat": 20.6200, "lon": -103.6200,
+      "n_puntos": 52, "n_pasadas": 6, "frp_max": 180.5,
+      "es_real": true, "prob_real": 0.97,
+      "nivel": "critico",
+      "razones": ["52 puntos de calor", "Intensidad máxima de 180.5 MW", "Duró más de 24 horas"],
+      "en_piloto": true
+    },
+    {
+      "id": "EJEMPLO-03",
+      "inicio": "2025-04-15T13:50",
+      "fin": "2025-04-15T13:50",
+      "lat": 20.5300, "lon": -103.3000,
+      "n_puntos": 1, "n_pasadas": 1, "frp_max": 3.1,
+      "es_real": false, "prob_real": 0.12,
+      "nivel": "bajo",
+      "razones": ["Un solo punto de calor, visto en una sola pasada", "Intensidad baja (3.1 MW)"],
+      "en_piloto": true
+    },
+    {
+      "id": "EJEMPLO-04",
+      "inicio": "2025-04-15T02:15",
+      "fin": "2025-04-15T14:20",
+      "lat": 19.7200, "lon": -104.1500,
+      "n_puntos": 7, "n_pasadas": 2, "frp_max": 22.0,
+      "es_real": true, "prob_real": 0.78,
+      "nivel": "medio",
+      "razones": ["Detectado en 2 pasadas de satélite", "7 puntos de calor"],
+      "en_piloto": false
+    },
+    {
+      "id": "EJEMPLO-05",
+      "inicio": "2025-04-15T20:01",
+      "fin": "2025-04-15T20:01",
+      "lat": 21.8500, "lon": -103.7800,
+      "n_puntos": 3, "n_pasadas": 2, "frp_max": 9.4,
+      "es_real": true, "prob_real": 0.66,
+      "nivel": "bajo",
+      "razones": ["Detectado en 2 pasadas de satélite", "Lejos de localidades (9.8 km)"],
+      "en_piloto": false
+    },
+    {
+      "id": "EJEMPLO-06",
+      "inicio": "2025-04-15T01:40",
+      "fin": "2025-04-15T03:20",
+      "lat": 20.6000, "lon": -103.3450,
+      "n_puntos": 4, "n_pasadas": 2, "frp_max": 2.4,
+      "es_real": false, "prob_real": 0.05,
+      "nivel": "bajo",
+      "razones": ["Fuente fija: el lugar tiene puntos de calor casi todo el año"],
+      "en_piloto": true
+    },
+    {
+      "id": "EJEMPLO-07",
+      "inicio": "2025-04-15T14:30",
+      "fin": "2025-04-16T14:10",
+      "lat": 20.2000, "lon": -105.3500,
+      "n_puntos": 31, "n_pasadas": 4, "frp_max": 95.0,
+      "es_real": true, "prob_real": 0.94,
+      "nivel": "alto",
+      "razones": ["31 puntos de calor", "Detectado en 4 pasadas de satélite"],
+      "en_piloto": false
+    },
+    {
+      "id": "EJEMPLO-08",
+      "inicio": "2025-04-15T19:55",
+      "fin": "2025-04-15T21:35",
+      "lat": 19.5500, "lon": -103.0200,
+      "n_puntos": 9, "n_pasadas": 2, "frp_max": 35.7,
+      "es_real": true, "prob_real": 0.83,
+      "nivel": "medio",
+      "razones": ["Detectado en 2 pasadas de satélite", "Intensidad máxima de 35.7 MW"],
+      "en_piloto": false
+    }
+  ]
+}
