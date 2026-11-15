@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <!--
-  web/index.html · Página "Mapa de incendios" (versión 2)
-  Qué hace:  muestra el menú, el recuadro de ayuda, el mapa de Jalisco con los incendios
-             pintados por nivel y la leyenda de colores.
+  web/index.html · Página "Mapa de incendios" (versión 3)
+  Qué hace:  muestra el menú, el recuadro de ayuda, los controles (año, día y niveles) y el mapa
+             de Jalisco con los incendios clasificados del día elegido.
   Qué usa:   css/estilos.css, Leaflet 1.9.4 (se baja de internet), js/comun.js (menú y carga
-             de datos) y js/mapa.js (el mapa).
+             de datos) y js/mapa.js (el mapa y los controles).
   Cómo se prueba: abrir el sitio publicado. Con doble clic en el archivo se ve el mapa, pero
              no los incendios: el navegador no deja leer archivos de datos desde el disco.
 -->
@@ -41,15 +41,42 @@
     <section class="ayuda">
       <h2>Cómo usar esta página</h2>
       <p>
-        Cada círculo es un incendio y su color indica el nivel de severidad; los grises son
-        probables falsas alarmas. <strong>Haz clic en un círculo</strong> para ver su ficha con
-        las razones de la clasificación. Mueve el mapa arrastrándolo y acércate con la rueda del
-        ratón o con los botones + y −.
+        Elige un <strong>año</strong> y un <strong>día</strong>: el mapa muestra los incendios que
+        estaban activos ese día. El color indica el nivel de severidad; los grises son probables
+        falsas alarmas. <strong>Haz clic en un círculo</strong> para ver por qué se clasificó así
+        y si coincide con un incendio registrado por CONAFOR.
       </p>
       <p>
-        El rectángulo punteado marca la <strong>región piloto</strong> (Bosque La Primavera y
-        Área Metropolitana de Guadalajara), donde la herramienta propondrá el plan de ataque.
+        Con las casillas de <strong>niveles</strong> puedes ocultar lo que no te interese. El
+        rectángulo punteado marca la <strong>región piloto</strong> (Bosque La Primavera y Área
+        Metropolitana de Guadalajara), donde la herramienta propondrá el plan de ataque.
       </p>
+    </section>
+
+    <!-- Controles: año, día y botones para moverse entre días -->
+    <section class="controles" aria-label="Elegir año y día">
+      <label>Año
+        <select id="anio">
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+        </select>
+      </label>
+      <label>Día
+        <input type="date" id="fecha">
+      </label>
+      <button type="button" id="dia-anterior">◀ Día anterior</button>
+      <button type="button" id="dia-siguiente">Día siguiente ▶</button>
+      <button type="button" id="dia-mas-activo">Día con más incendios</button>
+    </section>
+
+    <!-- Niveles: sirven de leyenda de colores y de filtro. js/mapa.js lee qué casillas están marcadas -->
+    <section class="leyenda" id="filtros" aria-label="Niveles que se muestran">
+      <span class="leyenda-titulo">Niveles:</span>
+      <label class="leyenda-item"><input type="checkbox" value="bajo" checked><span class="punto nivel-bajo"></span>Bajo</label>
+      <label class="leyenda-item"><input type="checkbox" value="medio" checked><span class="punto nivel-medio"></span>Medio</label>
+      <label class="leyenda-item"><input type="checkbox" value="alto" checked><span class="punto nivel-alto"></span>Alto</label>
+      <label class="leyenda-item"><input type="checkbox" value="critico" checked><span class="punto nivel-critico"></span>Crítico</label>
+      <label class="leyenda-item"><input type="checkbox" value="falsa" checked><span class="punto nivel-falsa"></span>Probable falsa alarma</label>
     </section>
 
     <!-- Aquí js/mapa.js escribe cuántos incendios se muestran o avisa si algo falló -->
@@ -58,15 +85,11 @@
     <!-- Aquí Leaflet dibuja el mapa -->
     <div id="mapa" class="mapa" aria-label="Mapa de Jalisco"></div>
 
-    <!-- Leyenda con el color de cada nivel -->
-    <section class="leyenda" aria-label="Colores por nivel">
-      <span class="leyenda-titulo">Niveles:</span>
-      <span class="leyenda-item"><span class="punto nivel-bajo"></span>Bajo</span>
-      <span class="leyenda-item"><span class="punto nivel-medio"></span>Medio</span>
-      <span class="leyenda-item"><span class="punto nivel-alto"></span>Alto</span>
-      <span class="leyenda-item"><span class="punto nivel-critico"></span>Crítico</span>
-      <span class="leyenda-item"><span class="punto nivel-falsa"></span>Probable falsa alarma</span>
-    </section>
+    <p class="nota">
+      La clasificación se hace con reglas ajustadas con los datos de 2024. “Real” significa que el
+      satélite vio fuego persistente en terreno forestal; no todos los incendios quedan
+      registrados por CONAFOR, y el satélite no ve todos los que CONAFOR registra.
+    </p>
 
   </main>
 

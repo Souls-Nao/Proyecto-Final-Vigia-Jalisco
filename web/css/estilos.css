@@ -1,5 +1,5 @@
 /*
-  estilos.css · Estilos compartidos por todas las páginas de Vigía Jalisco (versión 3)
+  estilos.css · Estilos compartidos por todas las páginas de Vigía Jalisco (versión 4)
   Qué hace: define colores, tipografía, el encabezado con el menú, el recuadro de ayuda,
             las tarjetas de texto, las tablas, los avisos, el mapa, la leyenda y el pie de página.
   Lo usan:  todas las páginas de web/ con <link rel="stylesheet" href="css/estilos.css">
@@ -227,6 +227,42 @@ a {
   background: #e8ebe6;         /* se ve mientras cargan las imágenes del mapa */
 }
 
+/* ---------- Controles (año, día y botones) ---------- */
+.controles {
+  display: flex;
+  flex-wrap: wrap;             /* en el celular los controles bajan a otra línea */
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+}
+
+.controles label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.controles select,
+.controles input,
+.controles button {
+  padding: 6px 10px;
+  font: inherit;               /* misma letra que el resto de la página */
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  background: var(--tarjeta);
+  color: var(--texto);
+}
+
+.controles button {
+  cursor: pointer;
+}
+
+.controles button:hover {
+  background: var(--verde-oscuro);
+  color: #ffffff;
+}
+
 /* Renglón que dice cuántos incendios se muestran (o avisa si algo falló) */
 #estado-datos {
   margin: 0 0 12px;
@@ -249,8 +285,13 @@ a {
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 18px;
-  margin-top: 12px;
+  margin: 12px 0;
   font-size: 0.95rem;
+}
+
+/* Cuando la leyenda trae casillas, toda la etiqueta se puede tocar */
+label.leyenda-item {
+  cursor: pointer;
 }
 
 .leyenda-titulo {
