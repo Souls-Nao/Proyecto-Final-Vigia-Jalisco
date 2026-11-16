@@ -1,15 +1,16 @@
 # 04_calcular_variables.py
 # Calcula, para cada incendio candidato, las variables con las que después se clasifica:
-# cuántas veces lo vio el satélite, qué tan intenso fue, si es una fuente fija y qué tan cerca
-# está de una población.
+# cuántas veces lo vio el satélite, qué tan intenso fue, si es una fuente fija, qué tan cerca
+# está de una población, si el terreno es forestal y si cae en un área natural protegida.
 # Lee:     datos/procesados/puntos_agrupados.csv        (script 03)
 #          datos/procesados/incendios_candidatos.csv    (script 03)
 #          datos/referencia/localidades_jalisco.csv     (script 02b)
+#          datos/crudos/conabio/usv250s7gw.zip          (script 02b, vegetación)
+#          datos/crudos/conabio/anpmx.zip               (script 02b, áreas protegidas)
 # Escribe: datos/procesados/incendios_variables.csv
 # Uso:     python scripts/04_calcular_variables.py
 #
-# Pendiente: es_forestal y en_area_protegida (el servidor de esa fuente no respondía el 12 nov)
-# y las variables de clima (Sprint 2).
+# Pendiente: las variables de clima (Sprint 2).
 
 import geopandas as gpd
 import pandas as pd
@@ -78,6 +79,42 @@ def localidad_mas_cercana(incendios, localidades):
     })
 
 
+def leer_mapa(archivo_zip, capa):
+    """Lee de un .zip solo la parte del mapa que cae en la caja de Jalisco, y la pasa a metros."""
+    caja = (config.JALISCO_OESTE, config.JALISCO_SUR, config.JALISCO_ESTE, config.JALISCO_NORTE)
+    mapa = gpd.read_file(f"zip://{archivo_zip}!{capa}", bbox=caja, encoding="utf-8")
+    return mapa.to_crs(config.CRS_METROS)
+
+
+def puntos_de_incendios(incendios):
+    """Convierte la tabla de incendios en puntos (el centro de cada uno), en metros."""
+    geometria = gpd.points_from_xy(incendios["x"], incendios["y"])
+    return gpd.GeoDataFrame(incendios[["incendio_id"]], geometry=geometria, crs=config.CRS_METROS)
+
+
+def vegetacion_del_lugar(incendios):
+    """Busca el tipo de vegetación en el centro de cada incendio y dice si es forestal."""
+    vegetacion = leer_mapa(config.ARCHIVO_VEGETACION, config.VEGETACION_CAPA)[["DESCRIPCIO", "geometry"]]
+    # sjoin pega a cada incendio el polígono de vegetación en el que cae su centro.
+    cruce = gpd.sjoin(puntos_de_incendios(incendios), vegetacion, how="left", predicate="within")
+    cruce = cruce.drop_duplicates("incendio_id").set_index("incendio_id")
+    tipo = cruce["DESCRIPCIO"].fillna("SIN DATO")
+    # Es forestal si su tipo NO empieza con ninguno de los usos no forestales de config.
+    no_forestal = tipo.str.startswith(config.USOS_NO_FORESTALES) | (tipo == "SIN DATO")
+    return pd.DataFrame({"vegetacion": tipo.str.capitalize(), "es_forestal": (~no_forestal).astype(int)})
+
+
+def area_protegida_del_lugar(incendios):
+    """Dice si el centro de cada incendio cae dentro de un área natural protegida federal, y en cuál."""
+    areas = leer_mapa(config.ARCHIVO_AREAS_PROTEGIDAS, config.AREAS_PROTEGIDAS_CAPA)[["NOMBRE", "geometry"]]
+    cruce = gpd.sjoin(puntos_de_incendios(incendios), areas, how="left", predicate="within")
+    cruce = cruce.drop_duplicates("incendio_id").set_index("incendio_id")
+    return pd.DataFrame({
+        "en_area_protegida": cruce["NOMBRE"].notna().astype(int),
+        "area_protegida": cruce["NOMBRE"].fillna("ninguna"),
+    })
+
+
 def esta_en_piloto(incendios):
     """Dice si el centro del incendio cae dentro de la región piloto (1) o no (0)."""
     dentro = (incendios["lon"].between(config.PILOTO_OESTE, config.PILOTO_ESTE)
@@ -91,13 +128,17 @@ def mostrar_resumen(incendios):
     print("  detectados en 2 o más pasadas:", (incendios["n_pasadas"] >= 2).sum())
     print("  marcados como fuente fija:    ", incendios["fuente_fija"].sum())
     print("  a menos de 2 km de una localidad:", (incendios["dist_localidad_km"] < 2).sum())
+    print("  en terreno forestal:          ", incendios["es_forestal"].sum())
+    print("  en área natural protegida:    ", incendios["en_area_protegida"].sum())
     print("  en la región piloto:          ", incendios["en_piloto"].sum())
     columnas = ["n_puntos", "n_pasadas", "duracion_horas", "frp_max", "dist_localidad_km"]
     print(incendios[columnas].describe().loc[["mean", "50%", "max"]].round(1).to_string())
 
 
 def main():
-    for archivo in [config.ARCHIVO_PUNTOS_AGRUPADOS, config.ARCHIVO_CANDIDATOS, config.ARCHIVO_LOCALIDADES]:
+    necesarios = [config.ARCHIVO_PUNTOS_AGRUPADOS, config.ARCHIVO_CANDIDATOS, config.ARCHIVO_LOCALIDADES,
+                  config.ARCHIVO_VEGETACION, config.ARCHIVO_AREAS_PROTEGIDAS]
+    for archivo in necesarios:
         if not archivo.exists():
             raise SystemExit(f"No se encontró {archivo}. Corre primero los scripts 02b y 03.")
     puntos = pd.read_csv(config.ARCHIVO_PUNTOS_AGRUPADOS, parse_dates=["fecha_hora_utc", "fecha_hora_local"])
@@ -111,6 +152,8 @@ def main():
                | (incendios["meses_con_calor"] >= config.MESES_FUENTE_FIJA))
     incendios["fuente_fija"] = es_fija.astype(int)
     incendios = incendios.join(localidad_mas_cercana(incendios, localidades), on="incendio_id")
+    incendios = incendios.join(vegetacion_del_lugar(incendios), on="incendio_id")
+    incendios = incendios.join(area_protegida_del_lugar(incendios), on="incendio_id")
     incendios["en_piloto"] = esta_en_piloto(incendios)
 
     incendios.to_csv(config.ARCHIVO_VARIABLES, index=False)
