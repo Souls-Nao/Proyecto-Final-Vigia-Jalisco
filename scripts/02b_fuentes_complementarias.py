@@ -1,9 +1,13 @@
 # 02b_fuentes_complementarias.py
-# Descarga las fuentes que complementan a los puntos de calor. Por ahora: las localidades de Jalisco
-# (dónde vive la gente y cuánta), para saber qué tan cerca de una población está cada incendio.
-# Lee:     internet (catálogo de municipios y localidades del INEGI).
+# Descarga las fuentes que complementan a los puntos de calor:
+#   1) las localidades de Jalisco (dónde vive la gente y cuánta),
+#   2) el mapa de uso del suelo y vegetación del INEGI (para saber si un lugar es forestal) y
+#   3) las áreas naturales protegidas federales.
+# Lee:     internet (INEGI y geoportal de CONABIO).
 # Escribe: datos/referencia/localidades_jalisco.csv
-# Uso:     python scripts/02b_fuentes_complementarias.py     (tarda cerca de 1 minuto)
+#          datos/crudos/conabio/usv250s7gw.zip   (vegetación de todo el país, 317 MB; no se sube)
+#          datos/crudos/conabio/anpmx.zip        (áreas protegidas, 6 MB; no se sube)
+# Uso:     python scripts/02b_fuentes_complementarias.py     (la primera vez tarda varios minutos)
 
 import geopandas as gpd
 import pandas as pd
@@ -19,6 +23,25 @@ def pedir_datos(url):
         raise SystemExit(f"El INEGI no entregó los datos de {url}. "
                          "Revisa tu conexión a internet o intenta más tarde.")
     return respuesta.json()["datos"]
+
+
+def descargar_archivo_grande(url, destino):
+    """Baja un archivo pesado por partes, para no llenar la memoria. Si ya está, no lo vuelve a bajar."""
+    if destino.exists():
+        print("  Ya estaba descargado:", destino.name)
+        return
+    print("  Descargando", url, "(puede tardar varios minutos)")
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    respuesta = requests.get(url, stream=True, timeout=600)
+    if respuesta.status_code != 200:
+        raise SystemExit(f"No se pudo descargar {url} (código {respuesta.status_code}). Intenta más tarde.")
+    # Se guarda primero con otro nombre: si la descarga se corta, no queda un archivo a medias
+    # con el nombre bueno.
+    temporal = destino.with_suffix(".descargando")
+    with open(temporal, "wb") as archivo:
+        for parte in respuesta.iter_content(chunk_size=1024 * 1024):
+            archivo.write(parte)
+    temporal.rename(destino)
 
 
 def descargar_localidades():
@@ -67,7 +90,15 @@ def main():
     print("  urbanas:", (localidades["ambito"] == "URBANO").sum(),
           "| rurales:", (localidades["ambito"] == "RURAL").sum())
     print("  población total:", localidades["poblacion"].sum())
-    print("Listo: guardadas en", config.ARCHIVO_LOCALIDADES)
+    print("  guardadas en", config.ARCHIVO_LOCALIDADES)
+
+    print("2. Uso del suelo y vegetación (INEGI, Serie VII)")
+    descargar_archivo_grande(config.VEGETACION_URL, config.ARCHIVO_VEGETACION)
+
+    print("3. Áreas naturales protegidas federales (CONANP)")
+    descargar_archivo_grande(config.AREAS_PROTEGIDAS_URL, config.ARCHIVO_AREAS_PROTEGIDAS)
+
+    print("Listo: fuentes complementarias descargadas.")
 
 
 if __name__ == "__main__":

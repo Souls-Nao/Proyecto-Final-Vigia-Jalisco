@@ -85,6 +85,8 @@ ARCHIVO_CONAFOR_POLIGONOS = CARPETA_PROCESADOS / "incendios_conafor_jalisco.geoj
 ARCHIVO_PUNTOS_AGRUPADOS = CARPETA_PROCESADOS / "puntos_agrupados.csv"        # script 03 (cada punto con su incendio)
 ARCHIVO_CANDIDATOS = CARPETA_PROCESADOS / "incendios_candidatos.csv"          # script 03 (una fila por incendio)
 ARCHIVO_VARIABLES = CARPETA_PROCESADOS / "incendios_variables.csv"            # script 04
+ARCHIVO_ETIQUETADOS = CARPETA_PROCESADOS / "incendios_etiquetados.csv"        # script 04b
+ARCHIVO_CLASIFICADOS = CARPETA_PROCESADOS / "incendios_clasificados.csv"      # script 05
 
 # ----------------------------------------------------------------------------
 # 5. Fuente F1 · Puntos de calor de NASA FIRMS
@@ -133,6 +135,31 @@ INEGI_MUNICIPIOS_URL = "https://gaia.inegi.org.mx/wscatgeo/v2/mgem/14"
 INEGI_LOCALIDADES_URL = "https://gaia.inegi.org.mx/wscatgeo/v2/localidades/14/{municipio}"
 
 # ----------------------------------------------------------------------------
+# 6c. Fuentes F4 y F5 · Vegetación y áreas naturales protegidas (script 02b)
+# ----------------------------------------------------------------------------
+# Las dos capas se bajan del geoportal de CONABIO, que redistribuye datos oficiales.
+# (La primera opción era IDEFOR de CONAFOR, pero su servidor de mapas no respondía el 12 y 13 nov.)
+#
+# Vegetación: "Uso del suelo y vegetación, escala 1:250 000, Serie VII" del INEGI, todo el país.
+# El archivo pesa 317 MB; por eso se guarda en datos/crudos/ y no se sube.
+VEGETACION_URL = "http://www.conabio.gob.mx/informacion/gis/maps/geo/usv250s7gw.zip"
+ARCHIVO_VEGETACION = CARPETA_CRUDOS / "conabio" / "usv250s7gw.zip"
+VEGETACION_CAPA = "usv250s7gw.shp"        # nombre del mapa dentro del archivo .zip
+
+# Áreas naturales protegidas FEDERALES de CONANP (versión de julio de 2025). No incluye las
+# estatales ni las municipales: es el plan B previsto para esta fuente y se declara como limitación.
+AREAS_PROTEGIDAS_URL = "http://www.conabio.gob.mx/informacion/gis/maps/geo/anpmx.zip"
+ARCHIVO_AREAS_PROTEGIDAS = CARPETA_CRUDOS / "conabio" / "anpmx.zip"
+AREAS_PROTEGIDAS_CAPA = "anpmx.shp"
+
+# Un lugar NO es forestal si su tipo de vegetación empieza con alguna de estas palabras: son los
+# usos agropecuarios, urbanos, el agua y los terrenos sin vegetación de la clasificación del INEGI.
+# Todo lo demás (bosques, selvas, matorrales, pastizal natural y vegetación secundaria) cuenta
+# como forestal. Justificación: CONAFOR solo registra incendios en terreno forestal.
+USOS_NO_FORESTALES = ("AGRICULTURA", "PASTIZAL INDUCIDO", "PASTIZAL CULTIVADO", "ASENTAMIENTOS HUMANOS",
+                      "CUERPO DE AGUA", "ACUÍCOLA", "SIN VEGETACIÓN", "DESPROVISTO", "PALMAR INDUCIDO")
+
+# ----------------------------------------------------------------------------
 # 7. Agrupamiento de puntos de calor en incendios candidatos (script 03)
 # ----------------------------------------------------------------------------
 # Dos puntos de calor se consideran del mismo incendio si están cerca en distancia y en tiempo.
@@ -175,6 +202,75 @@ CUADRO_FUENTE_FIJA_M = 1000
 MESES_FUENTE_FIJA = 6
 
 
+# ----------------------------------------------------------------------------
+# 9. Etiquetas: cruce de los candidatos con los registros de CONAFOR (script 04b)
+# ----------------------------------------------------------------------------
+# Un candidato se etiqueta como "real" si su centro queda a esta distancia o menos del polígono
+# de un incendio registrado por CONAFOR...
+# Calibrado con 2024 (el valor inicial era 3 km). Justificación: de los candidatos que coinciden
+# en fecha con un registro, casi todos están dentro del polígono o a menos de 1 km; más lejos,
+# las coincidencias se reparten parejo, como si fueran casualidad (reportes/analisis_datos.md).
+TOLERANCIA_KM = 1
+# ...y si sus fechas se traslapan con las del registro, con este margen de días.
+# Calibrado con 2024 (el valor inicial era 3 días). Justificación: a 1 y 2 días de distancia
+# todavía hay más coincidencias que las que da la casualidad; a 3 días o más, ya no.
+TOLERANCIA_DIAS = 2
+
+# Niveles de severidad, de menor a mayor. En los datos van sin acento.
+NIVELES = ["bajo", "medio", "alto", "critico"]
+# Superficie (hectáreas) en la que empieza cada nivel real: menos de 30 es bajo, de 30 a 100
+# medio, de 100 a 600 alto y 600 o más crítico.
+# Justificación: son los cuartiles (redondeados) de la superficie de los incendios de 2024 que
+# sí detectó el satélite: 31.5, 97.4 y 606.3 ha. Así cada nivel tiene la cuarta parte de los casos.
+CORTES_SEVERIDAD_HA = [30, 100, 600]
+
+# ----------------------------------------------------------------------------
+# 10. Paso A por reglas: ¿incendio real o falsa alarma? (script 05)
+# ----------------------------------------------------------------------------
+# Las reglas se ajustaron SOLO con los datos de 2024 y se prueban con 2025 (decisión D9).
+# Regla 1: fuente fija -> falsa alarma.
+# Regla 2: terreno forestal y visto en al menos estas pasadas de satélite -> real.
+PASADAS_MINIMAS_REAL = 2
+# Regla 3: un grupo con al menos estos puntos de calor -> real, aunque el terreno no sea forestal.
+PUNTOS_MINIMOS_REAL = 15
+# Regla 4: todo lo demás -> probable falsa alarma.
+#
+# "prob_real" de cada regla = parte de los candidatos de 2024 que cumplieron esa regla y
+# coincidieron con un registro de CONAFOR. Medido con 2024 (reportes/analisis_datos.md).
+# Ojo: CONAFOR no registra todos los incendios, así que estos números son un mínimo.
+PROB_REAL = {
+    "fuente_fija": 0.00,          # 0 de 154
+    "forestal_persistente": 0.36,  # 346 de 965
+    "grupo_grande": 0.48,         # 10 de 21
+    "forestal_una_pasada": 0.11,  # 234 de 2,095
+    "no_forestal": 0.03,          # 100 de 3,794
+}
+
+# ----------------------------------------------------------------------------
+# 11. Paso B por reglas: nivel de severidad (script 05)
+# ----------------------------------------------------------------------------
+# Cada condición que se cumple suma un punto. Ajustado con los incendios reales de 2024.
+PUNTOS_SEVERIDAD = [5, 15, 40]     # con 5, 15 o 40 puntos de calor o más: +1, +2 o +3
+FRP_SEVERIDAD = [30, 100]          # con intensidad máxima de 30 o 100 MW o más: +1 o +2
+DURACION_SEVERIDAD_H = 24          # si duró 24 horas o más: +1
+# Dentro de un área natural protegida: +1 (no predice el tamaño; cuenta por lo que está en riesgo).
+# Lejos de las localidades: +1. Justificación: en 2024 los incendios a menos de 2 km de una
+# localidad quemaron 38 ha (mediana) y los que estaban a más de 8 km, 837 ha: lejos de la gente
+# se detectan y se atienden más tarde. Con esta condición, los incendios críticos clasificados
+# como bajos pasaron de 67 a 15.
+DISTANCIA_LEJOS_KM = 4
+# Puntaje mínimo de cada nivel: 0 es bajo, 1 o 2 medio, 3 o 4 alto y 5 o más crítico.
+# (El punto de partida era 0-1, 2-3, 4-5 y 6+; con 2024 estos cortes aciertan más.)
+PUNTAJE_MINIMO_NIVEL = [1, 3, 5]
+
+# Regla de seguridad: un incendio a menos de esta distancia de una localidad (de 100 habitantes
+# o más) sube al menos a nivel alto, aunque sea pequeño.
+# El valor inicial era 2 km, pero a esa distancia está 1 de cada 5 incendios reales de 2024 y la
+# regla dejaría de ser excepcional. A menos de 1 km está el 5 %. Confirmado por el equipo el 13 nov 2026.
+DISTANCIA_SEGURIDAD_KM = 1
+NIVEL_MINIMO_SEGURIDAD = "alto"
+
+
 def crear_carpetas():
     """Crea las carpetas de datos que todavía no existan."""
     for carpeta in CARPETAS_DE_DATOS:
@@ -201,6 +297,8 @@ def mostrar_configuracion():
             print("  ", FIRMS_URL.format(sensor=sensor, anio=anio))
     print("Polígono de Jalisco (INEGI):")
     print("  ", JALISCO_POLIGONO_URL)
+    print("Vegetación (INEGI, vía CONABIO):", VEGETACION_URL)
+    print("Áreas protegidas (CONANP, vía CONABIO):", AREAS_PROTEGIDAS_URL)
     print("Capas de CONAFOR:")
     for anio in ANIOS:
         print("  ", anio, "->", CONAFOR_CAPAS[anio])
