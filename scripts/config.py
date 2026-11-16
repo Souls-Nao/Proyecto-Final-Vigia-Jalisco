@@ -78,10 +78,12 @@ CARPETAS_DE_DATOS = [CARPETA_CRUDOS, CARPETA_REFERENCIA, CARPETA_PROCESADOS, CAR
 
 # Archivos que producen los primeros scripts (el número dice qué script lo escribe).
 ARCHIVO_JALISCO = CARPETA_REFERENCIA / "jalisco.geojson"                      # script 01 (polígono del estado)
+ARCHIVO_LOCALIDADES = CARPETA_REFERENCIA / "localidades_jalisco.csv"          # script 02b
 ARCHIVO_PUNTOS_CALOR = CARPETA_PROCESADOS / "puntos_calor_jalisco.csv"        # script 01
 ARCHIVO_CONAFOR = CARPETA_PROCESADOS / "incendios_conafor_jalisco.csv"        # script 02 (tabla)
 ARCHIVO_CONAFOR_POLIGONOS = CARPETA_PROCESADOS / "incendios_conafor_jalisco.geojson"  # script 02 (polígonos)
-ARCHIVO_CANDIDATOS = CARPETA_PROCESADOS / "incendios_candidatos.csv"          # script 03
+ARCHIVO_PUNTOS_AGRUPADOS = CARPETA_PROCESADOS / "puntos_agrupados.csv"        # script 03 (cada punto con su incendio)
+ARCHIVO_CANDIDATOS = CARPETA_PROCESADOS / "incendios_candidatos.csv"          # script 03 (una fila por incendio)
 ARCHIVO_VARIABLES = CARPETA_PROCESADOS / "incendios_variables.csv"            # script 04
 
 # ----------------------------------------------------------------------------
@@ -119,6 +121,58 @@ CONAFOR_ESTADO = "Jalisco"
 # esta distancia. Justificación: un píxel de VIIRS mide 375 m, así que 20 m no afecta el cruce
 # con los puntos de calor y el archivo baja de 27 MB a pocos MB.
 SIMPLIFICAR_POLIGONOS_M = 20
+
+
+# ----------------------------------------------------------------------------
+# 6b. Fuente F3 · Localidades del INEGI (script 02b)
+# ----------------------------------------------------------------------------
+# El mismo servicio del Marco Geoestadístico entrega la lista de municipios de un estado y las
+# localidades de cada municipio, con su ubicación y su población del Censo 2020.
+# Fuente: https://www.inegi.org.mx/servicios/catalogounico.html (comprobado el 12 nov 2026).
+INEGI_MUNICIPIOS_URL = "https://gaia.inegi.org.mx/wscatgeo/v2/mgem/14"
+INEGI_LOCALIDADES_URL = "https://gaia.inegi.org.mx/wscatgeo/v2/localidades/14/{municipio}"
+
+# ----------------------------------------------------------------------------
+# 7. Agrupamiento de puntos de calor en incendios candidatos (script 03)
+# ----------------------------------------------------------------------------
+# Dos puntos de calor se consideran del mismo incendio si están cerca en distancia y en tiempo.
+# Valor inicial; se calibra en OP1. Justificación del valor inicial: un píxel de MODIS mide
+# 1 km, así que dos detecciones del mismo fuego pueden quedar separadas hasta esa distancia.
+DISTANCIA_MAXIMA_M = 1000
+# Valor inicial; se calibra en OP1. Justificación del valor inicial: 3 de cada 4 incendios
+# registrados por CONAFOR en Jalisco duran 1 día o menos (reportes/analisis_datos.md), y
+# 48 horas dan margen para que el satélite vuelva a pasar sobre un incendio que sigue activo.
+VENTANA_HORAS = 48
+# Para que DBSCAN compare distancia y tiempo con una sola regla, las horas se convierten a
+# "metros": 48 horas valen lo mismo que 1,000 metros.
+METROS_POR_HORA = DISTANCIA_MAXIMA_M / VENTANA_HORAS
+
+
+# ----------------------------------------------------------------------------
+# 8. Variables de cada incendio (script 04)
+# ----------------------------------------------------------------------------
+# Detecciones del mismo satélite con menos de 30 minutos de diferencia cuentan como una sola
+# pasada. Justificación: cada satélite tarda cerca de 100 minutos en dar una vuelta a la Tierra,
+# así que no puede ver dos veces el mismo lugar en menos de media hora.
+MINUTOS_MISMA_PASADA = 30
+
+# Para la distancia a la población solo cuentan localidades con al menos estos habitantes.
+# Valor inicial; se calibra en OP1. Justificación: la mitad de las localidades de Jalisco tiene
+# 14 habitantes o menos (ranchos); sin este mínimo casi todo incendio quedaría "cerca de una
+# localidad" y la regla de seguridad perdería sentido.
+POBLACION_MINIMA_LOCALIDAD = 100
+
+# Fuente fija = lugar que emite calor casi todo el año (industria, ladrilleras), no un incendio.
+# Se marca de dos maneras:
+# 1) FIRMS ya etiqueta algunos puntos como fuente fija (tipo 2). Si al menos la mitad de los
+#    puntos del incendio son de ese tipo, se marca. Valor inicial.
+FRACCION_PUNTOS_FIJOS = 0.5
+# 2) Se divide el estado en cuadros de 1 km y se cuenta en cuántos meses distintos del año hubo
+#    puntos de calor en cada cuadro. Con 6 meses o más se considera fuente fija. Valor inicial;
+#    se calibra en OP1. Justificación: el 88 % de los puntos de calor cae de marzo a junio
+#    (4 meses); un lugar con calor en 6 meses o más no sigue la temporada de incendios.
+CUADRO_FUENTE_FIJA_M = 1000
+MESES_FUENTE_FIJA = 6
 
 
 def crear_carpetas():
