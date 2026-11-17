@@ -79,6 +79,8 @@ CARPETAS_DE_DATOS = [CARPETA_CRUDOS, CARPETA_REFERENCIA, CARPETA_PROCESADOS, CAR
 # Archivos que producen los primeros scripts (el número dice qué script lo escribe).
 ARCHIVO_JALISCO = CARPETA_REFERENCIA / "jalisco.geojson"                      # script 01 (polígono del estado)
 ARCHIVO_LOCALIDADES = CARPETA_REFERENCIA / "localidades_jalisco.csv"          # script 02b
+ARCHIVO_BASES = CARPETA_REFERENCIA / "bases.csv"                              # bases de brigadas (hipotéticas)
+ARCHIVO_RED_VIAL = CARPETA_CRUDOS / "red_vial_piloto.graphml"                 # script 06 (no se sube)
 ARCHIVO_PUNTOS_CALOR = CARPETA_PROCESADOS / "puntos_calor_jalisco.csv"        # script 01
 ARCHIVO_CONAFOR = CARPETA_PROCESADOS / "incendios_conafor_jalisco.csv"        # script 02 (tabla)
 ARCHIVO_CONAFOR_POLIGONOS = CARPETA_PROCESADOS / "incendios_conafor_jalisco.geojson"  # script 02 (polígonos)
@@ -269,6 +271,55 @@ PUNTAJE_MINIMO_NIVEL = [1, 3, 5]
 # regla dejaría de ser excepcional. A menos de 1 km está el 5 %. Confirmado por el equipo el 13 nov 2026.
 DISTANCIA_SEGURIDAD_KM = 1
 NIVEL_MINIMO_SEGURIDAD = "alto"
+
+
+# ----------------------------------------------------------------------------
+# 12. Tabla de respuesta: recursos que se recomiendan para cada nivel
+# ----------------------------------------------------------------------------
+# SUPUESTO DEL EQUIPO. No está validado por un brigadista ni por un especialista en manejo del
+# fuego; se declara como limitación. La idea: cada nivel pide una brigada más que el anterior,
+# la unidad con motobomba entra desde el nivel alto y en el crítico se RECOMIENDA pedir apoyo
+# aéreo (la herramienta no lo asigna ni lo solicita).
+TABLA_RESPUESTA = {
+    "bajo":    {"brigadas": 1, "motobomba": False, "apoyo_aereo": False},
+    "medio":   {"brigadas": 2, "motobomba": False, "apoyo_aereo": False},
+    "alto":    {"brigadas": 3, "motobomba": True,  "apoyo_aereo": False},
+    "critico": {"brigadas": 4, "motobomba": True,  "apoyo_aereo": True},
+}
+# Peso de cada nivel al repartir brigadas: llegar tarde a un incendio crítico "cuesta" 8 veces
+# más que llegar tarde a uno bajo. Supuesto del equipo: cada nivel pesa el doble que el anterior.
+PESO_NIVEL = {"bajo": 1, "medio": 2, "alto": 4, "critico": 8}
+
+# ----------------------------------------------------------------------------
+# 13. Rutas en la región piloto (script 06)
+# ----------------------------------------------------------------------------
+# Servidores públicos de donde se puede bajar la red de caminos de OpenStreetMap. Se prueban en
+# orden: si uno está saturado o no responde, se intenta con el siguiente.
+# Fuente: lista de servidores públicos de Overpass en la wiki de OpenStreetMap
+# (https://wiki.openstreetmap.org/wiki/Overpass_API#Public_Overpass_API_instances).
+SERVIDORES_OSM = [
+    "https://overpass-api.de/api",
+    "https://maps.mail.ru/osm/tools/overpass/api",
+    "https://overpass.private.coffee/api",
+]
+
+# Tipos de camino de OpenStreetMap que se usan. Se incluyen las brechas ("track") porque son
+# el acceso al bosque; se dejan fuera andadores y ciclovías, por donde no pasa un vehículo.
+TIPOS_DE_CAMINO = ("motorway|motorway_link|trunk|trunk_link|primary|primary_link|secondary|secondary_link|"
+                   "tertiary|tertiary_link|unclassified|residential|living_street|service|track")
+# Velocidad (km/h) que se supone en cada tipo de camino cuando OpenStreetMap no trae su límite.
+# SUPUESTO DEL EQUIPO (valores iniciales): límites usuales de tránsito para calles (30), avenidas
+# (40 a 60) y carreteras (80 a 90), y velocidades bajas en brechas y accesos. Son tiempos de un
+# vehículo en condiciones normales, sin tráfico; no están medidos con brigadas reales.
+VELOCIDADES_KMH = {
+    "motorway": 90, "motorway_link": 60, "trunk": 80, "trunk_link": 50,
+    "primary": 60, "primary_link": 40, "secondary": 50, "secondary_link": 40,
+    "tertiary": 40, "tertiary_link": 30, "unclassified": 30, "residential": 30,
+    "living_street": 20, "service": 20, "track": 20,
+}
+# Las rutas se guardan con menos detalle para que el archivo del sitio pese poco: se quitan los
+# puntos que cambian el trazo menos de 30 metros (no se nota en el mapa).
+SIMPLIFICAR_RUTAS_M = 30
 
 
 def crear_carpetas():

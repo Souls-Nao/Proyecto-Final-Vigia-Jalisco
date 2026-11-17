@@ -1,0 +1,65 @@
+{
+  "generado": "2026-11-13",
+  "nota": "Copia de scripts/config.py. No editar a mano: cambiar config.py y correr el script 07.",
+  "niveles": [
+    "bajo",
+    "medio",
+    "alto",
+    "critico"
+  ],
+  "pasadas_minimas_real": 2,
+  "puntos_minimos_real": 15,
+  "prob_real": {
+    "fuente_fija": 0.0,
+    "forestal_persistente": 0.36,
+    "grupo_grande": 0.48,
+    "forestal_una_pasada": 0.11,
+    "no_forestal": 0.03
+  },
+  "puntos_severidad": [
+    5,
+    15,
+    40
+  ],
+  "frp_severidad": [
+    30,
+    100
+  ],
+  "duracion_severidad_h": 24,
+  "distancia_lejos_km": 4,
+  "puntaje_minimo_nivel": [
+    1,
+    3,
+    5
+  ],
+  "distancia_seguridad_km": 1,
+  "nivel_minimo_seguridad": "alto",
+  "tabla_respuesta": {
+    "bajo": {
+      "brigadas": 1,
+      "motobomba": false,
+      "apoyo_aereo": false
+    },
+    "medio": {
+      "brigadas": 2,
+      "motobomba": false,
+      "apoyo_aereo": false
+    },
+    "alto": {
+      "brigadas": 3,
+      "motobomba": true,
+      "apoyo_aereo": false
+    },
+    "critico": {
+      "brigadas": 4,
+      "motobomba": true,
+      "apoyo_aereo": true
+    }
+  },
+  "peso_nivel": {
+    "bajo": 1,
+    "medio": 2,
+    "alto": 4,
+    "critico": 8
+  }
+}

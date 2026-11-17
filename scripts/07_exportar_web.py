@@ -1,8 +1,9 @@
 # 07_exportar_web.py
 # Convierte la tabla de incendios clasificados en los archivos JSON que lee el sitio web:
-# uno por año, solo con lo que el mapa necesita mostrar.
+# uno por año, solo con lo que el mapa necesita mostrar. También copia al sitio los números de
+# las reglas (los de config.py), para que el navegador use exactamente los mismos.
 # Lee:     datos/procesados/incendios_clasificados.csv     (script 05)
-# Escribe: web/datos/incendios_2024.json y web/datos/incendios_2025.json
+# Escribe: web/datos/incendios_2024.json, web/datos/incendios_2025.json y web/datos/reglas.json
 # Uso:     python scripts/07_exportar_web.py
 
 import json
@@ -53,6 +54,33 @@ def exportar_anio(incendios, anio):
     return ruta
 
 
+def exportar_reglas():
+    """Escribe los números de las reglas para las páginas "Probar clasificación" y "Plan de ataque"."""
+    reglas = {
+        "generado": date.today().isoformat(),
+        "nota": "Copia de scripts/config.py. No editar a mano: cambiar config.py y correr el script 07.",
+        "niveles": config.NIVELES,
+        # Paso A
+        "pasadas_minimas_real": config.PASADAS_MINIMAS_REAL,
+        "puntos_minimos_real": config.PUNTOS_MINIMOS_REAL,
+        "prob_real": config.PROB_REAL,
+        # Paso B
+        "puntos_severidad": config.PUNTOS_SEVERIDAD,
+        "frp_severidad": config.FRP_SEVERIDAD,
+        "duracion_severidad_h": config.DURACION_SEVERIDAD_H,
+        "distancia_lejos_km": config.DISTANCIA_LEJOS_KM,
+        "puntaje_minimo_nivel": config.PUNTAJE_MINIMO_NIVEL,
+        "distancia_seguridad_km": config.DISTANCIA_SEGURIDAD_KM,
+        "nivel_minimo_seguridad": config.NIVEL_MINIMO_SEGURIDAD,
+        # Plan de ataque
+        "tabla_respuesta": config.TABLA_RESPUESTA,
+        "peso_nivel": config.PESO_NIVEL,
+    }
+    ruta = config.CARPETA_WEB_DATOS / "reglas.json"
+    ruta.write_text(json.dumps(reglas, ensure_ascii=False, indent=2), encoding="utf-8")
+    return ruta
+
+
 def main():
     if not config.ARCHIVO_CLASIFICADOS.exists():
         raise SystemExit(f"No se encontró {config.ARCHIVO_CLASIFICADOS}. Corre primero el script 05.")
@@ -64,6 +92,7 @@ def main():
         ruta = exportar_anio(incendios, anio)
         cuantos = (incendios["anio"] == anio).sum()
         print(f"{ruta.name}: {cuantos} incendios, {ruta.stat().st_size / 1_000_000:.1f} MB")
+    print(exportar_reglas().name + ": reglas y tabla de respuesta copiadas de config.py")
     print("Listo: archivos guardados en", config.CARPETA_WEB_DATOS)
 
 

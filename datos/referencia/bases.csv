@@ -1,0 +1,7 @@
+base_id,nombre,municipio,lat,lon,brigadas_terrestres,motobombas,hipotetica,nota
+B1,Base hipotética Tala,Tala,20.6525,-103.70278,2,0,1,Ubicación supuesta: centro de la localidad según el INEGI. No es una base real.
+B2,Base hipotética El Arenal,El Arenal,20.77611,-103.69389,1,0,1,Ubicación supuesta: centro de la localidad según el INEGI. No es una base real.
+B3,Base hipotética La Venta del Astillero,Zapopan,20.72694,-103.54667,2,1,1,Ubicación supuesta: centro de la localidad según el INEGI. No es una base real.
+B4,Base hipotética Zapopan,Zapopan,20.72056,-103.38833,3,1,1,Ubicación supuesta: centro de la localidad según el INEGI. No es una base real.
+B5,Base hipotética Tlajomulco de Zúñiga,Tlajomulco de Zúñiga,20.47361,-103.44306,2,0,1,Ubicación supuesta: centro de la localidad según el INEGI. No es una base real.
+B6,Base hipotética Guadalajara,Guadalajara,20.67639,-103.34222,2,1,1,Ubicación supuesta: centro de la localidad según el INEGI. No es una base real.
