@@ -1,0 +1,11 @@
+algoritmo,n,milisegundos
+dbscan,2791,12.1
+dbscan,5583,25.4
+dbscan,11166,57.0
+dbscan,22331,129.6
+dbscan,44662,299.8
+reglas,882,27.2
+reglas,1765,54.7
+reglas,3530,108.6
+reglas,7059,214.9
+reglas,14118,436.3
