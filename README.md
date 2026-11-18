@@ -12,7 +12,7 @@ Seminario de Integración de Desarrollo · Equipo **Brigada Binaria**
 
 ## El problema (resumen)
 
-Cuando hay varios incendios activos al mismo tiempo, los coordinadores reciben alertas satelitales en forma de **puntos de calor sueltos**: un incendio genera muchos puntos y hay falsas alarmas. Con eso deben decidir rápido cuáles son incendios reales, qué tan graves son, cuántos recursos necesita cada uno y en qué orden atenderlos. La detección ya existe (FIRMS, CONABIO, LANOT); lo que no está resuelto es el paso entre la alerta y el plan de ataque. → [Planteamiento completo](docs/01_planteamiento_y_objetivos.md)
+Cuando hay varios incendios activos al mismo tiempo, los coordinadores reciben alertas satelitales en forma de **puntos de calor sueltos**: un incendio genera muchos puntos y hay falsas alarmas. Con eso deben decidir rápido cuáles son incendios reales, qué tan graves son, cuántos recursos necesita cada uno y en qué orden atenderlos. La detección ya existe (FIRMS, CONABIO, LANOT); lo que no está resuelto es el paso entre la alerta y el plan de ataque.
 
 ## Qué hace la herramienta
 
